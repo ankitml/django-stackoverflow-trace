@@ -2,7 +2,7 @@ from django.views import debug
 from django.conf import settings
 
 
-def get_search_link():
+def get_search_links():
     default_choice = "stackoverflow"
 
     search_urls = {
@@ -12,23 +12,21 @@ def get_search_link():
                         "+django+{{ exception_value|force_escape }}"
     }
 
-    search_url = getattr(
-        settings,
-        'DJANGO_STACKOVERFLOW_TRACE_SEARCH_SITE',
-        default_choice
-    )
-
-    return search_urls.get(search_url, search_urls[default_choice])
+    return list(search_urls.values())
 
 
 def _patch_django_debug_view():
 
     new_data = """
         <h3 style="margin-bottom:10px;">
-            <a href="%s"
+            <a href="{0}"
              target="_blank">View in Stackoverflow</a>
         </h3>
-    """ % get_search_link()
+        <h3 style="margin-bottom:10px;">
+            <a href="{1}"
+             target="_blank">View in Google</a>
+        </h3>
+    """.format(*get_search_links())
 
     replace_point = '<table class="meta">'
     replacement = new_data + replace_point
